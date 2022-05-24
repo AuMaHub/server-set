@@ -11,7 +11,6 @@
 > AWS KEY가 인터넷에 노출되면 압축된 파일이더라도 
 > 바로 확인해서 계정의 할당량을 없애버리므로 주의(※ AWS가 아니더라도 KEY데이터는 절대 인터넷에 공개되지 않도록 주의)
 ## kubectl 설치
----
 
 > 이미 쿠버네티스가 깔려있다면 이 과정을 스킵
 
@@ -38,7 +37,6 @@ PATH 등록
 ``` kubectl version --short --client ```
 
 ## aws cli 설치
----
 awscli 설치
 
 ``` brew install awscli ```
@@ -59,7 +57,6 @@ Default output format [None] :
 > --profile 옵션으로 사용 시 aws, eksctl 명령어 뒤에 --profile <프로필명>으로 계정 접근
 
 ## eksctl 설치
----
 
 macOS에 Homebrew가 아직 설치되어 있지 않은 경우 다음 명령을 사용하여 설치
 
@@ -82,7 +79,6 @@ eksctl가 이미 설치된 경우 다음 명령을 실행하여 업그레이드
 ``` eksctl version ```
 
 ## eksctl 사용
----
 
 fargate를 사용해서 CloudeFormation을 생성
 
@@ -90,7 +86,6 @@ fargate를 사용해서 CloudeFormation을 생성
 > CloudFormation은 무료이며 region-code는 [여기를 참고](https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/using-regions-availability-zones.html)
 
 ## [argoCD 설치](https://argo-cd.readthedocs.io/en/release-1.8/getting_started/)
----
 > Docker Desktop에서 AWS EKS에 접속되어있는지 확인하고 시작할 것
 
 Argo CD CLI 설치
@@ -174,8 +169,7 @@ Argo CD 패스워드 확인
 > ID는 admin으로 고정
 
 
-
---------------------------
+-----------------------
 
 ``` aws sts get-caller-identity ``` 의 ARN이 클러스터 생성자와 일치하는지 확인
 
@@ -186,16 +180,13 @@ Argo CD 패스워드 확인
 > 여기서 jq가 없으면 ``` brew install jq ```
 
 
-
---------------------------
+-----------------------
 
 ## argocd 저장소 등록
----
 ssh key 생성
    
 ```ssh-keygen -t ed25519 -C "<이메일>" ```
 ``` 
----
 Enter file in which to save the key (/Users/account/.ssh/id_ed25519): /Users/account/.ssh/<저장할 ssh-key명>
 
 Enter passphrase (empty for no passphrase): 엔터
@@ -219,7 +210,6 @@ argocd cli로 git repo 등록
 ``` argocd repo add git@github.com:<Git아이디>/<레포지토리>.git --ssh-private-key-path ~/.ssh/<ssh-key명> --upsert ```
 
 ## ingress-nginx 설치
----
 네트워크 로드밸런서 활성화
 
 ``` kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml ```
@@ -231,12 +221,10 @@ argocd에 적용
 [](assets/ingress_in_argocd.png)
 
 ## AWS ECR 
----
 > AWS ECR 생성 후 리포지토리에 들어가서 푸시명령 보기에 적힌대로 buildspec.yaml에 작성
 
 
 ## eks 대시보드
----
 
 대시보드 설치
 
@@ -252,7 +240,6 @@ kind: ServiceAccount
 metadata:
   name: eks-admin
   namespace: kube-system
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -286,7 +273,6 @@ subjects:
 
 
 ## Load Balancer Controller
----
 > ※ 내용이 자세히 기억이 안나므로 검색해서 하는 것을 추천
 >
 > [공식문서](https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html)
@@ -344,5 +330,4 @@ jar {
 
 
 ## 태그
----
 #alb-nginx-ingress #eks #route53 #codebuild #ecr #cert-manager #argocd #helm #loadBalancer
