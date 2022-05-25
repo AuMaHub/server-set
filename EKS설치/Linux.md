@@ -24,6 +24,11 @@
   - [ArgoCD 레포지토리 등록](#argocd-레포지토리-등록)
   - [ArgoCD 앱 생성](#argocd-앱-생성)
   - [AWS Load Balancer Controller 설치](#aws-load-balancer-controller-설치)
+  - [AWS ECR 생성](#aws-ecr-생성)
+  - [테스트서버 파일 생성](#테스트서버-파일-생성)
+  - [GitHub 개인용 엑세스 토큰 생성](#github-개인용-엑세스-토큰-생성)
+  - [AWS CodeBuild 역할 생성](#aws-codebuild-역할-생성)
+  - [AWS CodeBuild 세팅](#aws-codebuild-세팅)
 
 ## apt 업데이트
 ```
@@ -281,6 +286,13 @@ Default output format [None] : <json, xml 등... 비워놔도 됨>
         --override-existing-serviceaccounts \
         --approve
     ```
+    > AWS-account 확인 명령어 : ``` aws sts get-caller-identity --query Account --output text ``` \
+    >
+    > ``` Error: unable to create iamserviceaccount(s) without IAM OIDC provider enabled ``` 라는 에러가 뜨면 아래 명령어로 IAM OIDC 공급자 생성 후 다시 시도
+   > ```
+   > eksctl utils associate-iam-oidc-provider --cluster <클러스터명> --approve
+   > ```
+
 4. eks-charts 리포지토리 추가
     ```
     helm repo add eks https://aws.github.io/eks-charts
@@ -293,11 +305,11 @@ Default output format [None] : <json, xml 등... 비워놔도 됨>
     ```
     helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
         -n kube-system \
-        --set clusterName=cluster-name \
+        --set clusterName=<클러스터명> \
         --set serviceAccount.create=false \
-        --set serviceAccount.name=aws-load-balancer-controller 
-        --set image.repository=<account>.dkr.ecr.<region-code>.amazonaws.com/amazon/aws-load-balancer-controller
-        --set region=<리전 코드>
+        --set serviceAccount.name=aws-load-balancer-controller \
+        --set image.repository=<공식문서 리전별 레지스트리 주소>/amazon/aws-load-balancer-controller \
+        --set region=<리전 코드> \
         --set vpcId=<vpc-xxxxxxxx>
     ```
 > image.repository는 [aws공식문서](https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/add-ons-images.html)를 참조하고, 서울인 경우 ``` 602401143452.dkr.ecr.ap-northeast-2.amazonaws.com/ ```를 입력\
@@ -305,3 +317,57 @@ Default output format [None] : <json, xml 등... 비워놔도 됨>
 > vpcId는 aws eks 클러스터 > 구성 > 네트워킹에서 확인 할 수 있음\
 > ![](assets/클러스터VPC.png)
 
+7. 적용
+    ```
+    kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/crds?ref=master"
+    ```
+8. 확인
+    ```
+    kubectl get deployment -n kube-system aws-load-balancer-controller
+    ```
+
+## AWS ECR 생성
+1. 프라이빗 선택과 이름만 적고 바로 생성
+    ![](assets/AWS_ECR_SET.png)
+2. 접근 URI 메모해두기
+    ![](assets/AWS_ECR_URI.png)
+
+## 테스트서버 파일 생성
+[테스트서버 작성](부가설명/testServerCode.md#테스트서버-작성)
+
+## GitHub 개인용 엑세스 토큰 생성
+1. 계정의 설정으로 이동\
+    ![](assets/git_token_1.png)
+    
+2. 메뉴 최하단 개발자 세팅 클릭\
+    ![](assets/git_token_2.png)
+
+3. 개인 엑세스 토큰 생성 클릭\
+    ![](assets/git_token_3.png)
+
+4. 이름, 유효기간 설정 후 레포지토리 접속권한과 hook권한만 체크하고 생성\
+    ![](assets/git_token_4.png)
+
+5. 생성되면 토큰을 주는데 다른 페이지로 이동 시 다시는 못보니 꼭 복사 해둘것\
+    ![](assets/git_token_5.png)
+
+## AWS CodeBuild 역할 생성
+[코드빌드 역할 생성](부가설명/CodeBuild_role.md#codebuild-role)
+
+## AWS CodeBuild 세팅
+1. 프로젝트 이름과 설명을 입력
+2. 소스 공급자를 Github로 변경 후 [액세스 토큰](#github-개인용-엑세스-토큰-생성)을 입력하고 토큰을 저장함\
+    ![](assets/codebuild_2.png)
+3. 코드빌드할 레포지토리를 선택함
+4. Webhook 이벤트 유형은 PUSH만 선택하고 HEAD_REF에 ``` ^refs/heads/<브렌치명>$ ``` 을 입력\
+    ![](assets/codebuild_3.png)
+    > 빌드만 하는 브렌치가 있는 편이 관리하기 쉬움
+
+5. 운영체제는 Ubuntu에 이미지는 5.0, 도커 이미지 빌드 권한을 부여\
+    ![](assets/codebuild_4.png)
+
+6. buildspec.yaml의 경로를 입력
+    ![](assets/codebuild_5.png)
+
+7. 서비스 역할은 [AWS CodeBuild 역할 생성](#aws-codebuild-역할-생성)에서 생성한 역할로 선택
+    ![](assets/codebuild_6.png)
