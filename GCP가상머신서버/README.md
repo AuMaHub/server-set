@@ -45,8 +45,15 @@
     nginx -v
     ```
 5. 포트 변경 및 실행파일 위치 변경
+    ```
+    sudo vi /etc/nginx/conf.d/default.conf
+    ```
     ![](assets/nginx_setting.png)
     > location.root의 경로가 실행 위치폴더임
+6. nginx 리로드
+    ```
+    nginx -s reload
+    ```
 
 ## GCP 방화벽 설정
 1. VPC에 방화벽 접근
@@ -117,7 +124,7 @@
 8. 외부 접근 계정 생성 및 권한부여
     ```
     create user '<계정명>'@'%' identified by '<비밀번호>';
-    grant all privileges on * to '<계정명>'@'%';
+    grant all privileges on *.* to '<계정명>'@'%' WITH GRANT OPTION;
     flush privileges;
     show grants for '<계정명>'@'%';
     ```
