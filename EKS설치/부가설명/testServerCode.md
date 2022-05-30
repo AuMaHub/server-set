@@ -62,7 +62,7 @@
         commands:
         - echo Logging in to Amazon ECR..
         - aws ecr get-login-password --region <ecr 리전> | docker login --username AWS --password-stdin "$(aws sts get-caller-identity --query Account --output text).dkr.ecr.<ecr 리전>.amazonaws.com"
-        - DOCKER_IMAGE=<AWS-account>.dkr.ecr.<ecr 리전>.amazonaws.com/test
+        - DOCKER_IMAGE=<AWS-account>.dkr.ecr.<ecr 리전>.amazonaws.com/<ecr 리포지토리명>
         - echo -----------------------------
         - IMAGE_TAG=$(TZ='Asia/Seoul' date +"%y%m%d-%H%M")
     build:

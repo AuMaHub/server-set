@@ -29,6 +29,7 @@
   - [GitHub 개인용 엑세스 토큰 생성](#github-개인용-엑세스-토큰-생성)
   - [AWS CodeBuild 역할 생성](#aws-codebuild-역할-생성)
   - [AWS CodeBuild 세팅](#aws-codebuild-세팅)
+  - [LoadBalancer](#loadbalancer)
 
 ## apt 업데이트
 ```
@@ -371,3 +372,81 @@ Default output format [None] : <json, xml 등... 비워놔도 됨>
 
 7. 서비스 역할은 [AWS CodeBuild 역할 생성](#aws-codebuild-역할-생성)에서 생성한 역할로 선택
     ![](assets/codebuild_6.png)
+
+## LoadBalancer 
+
+1. 로드밸런싱 내용이 들어갈 yamls파일을 생성
+    ```
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+    name: test-ingress
+    annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/use-regex: "true"
+    spec:
+    rules:
+        - host: 
+        http:
+            paths:
+            - path: /
+                pathType: Prefix
+                backend:
+                service:
+                    name: testing
+                    port:
+                    number: 8080
+    ```
+2. deploy파일을 생성
+    ```
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+    name: test-server
+    spec:
+    replicas: 1
+    selector:
+        matchLabels:
+        app: test-server
+    template:
+        metadata:
+        labels:
+            app: test-server
+        spec:
+        imagePullSecrets:
+            - name: regcred
+        containers:
+            - name: test-server
+            image: <ecr URI>:<image tag>
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+    name: testing
+    spec:
+    selector:
+        app: test-server
+    ports:
+        - name: testing
+        protocol: TCP
+        port: 8080
+        targetPort: 8080
+    type: LoadBalancer
+    ```
+
+3. ArgoCD에서 지정한 브렌치 혹은 저장소로 push, merge
+4. ArgoCD에 접속해서 새로고침 후 모두 초록불이 들어오는지 확인
+5. testing이라는 이름으로 서비스가 실행됐는지 확인
+    ```
+    kubectl get svc
+    ```
+6. 서비스 타입(로드밸런서라고 적혀있어야됨), EXTERNAL-IP 확인
+    ```
+    NAME         TYPE           CLUSTER-IP      EXTERNAL-IP                                                                   PORT(S)          AGE
+    kubernetes   ClusterIP      10.100.0.1      <none>                                                                        443/TCP          9d
+    testing      LoadBalancer   10.100.250.14   (노출금지).ap-northeast-2.elb.amazonaws.com   8080:31735/TCP   3d14h
+    ```
+7. 아무 브라우저를 열어서 EXTERNAL-IP로 접속이 되는지 확인
+    > LoadBalancer에 입력한 포트로 접속해야함\
+    > 서버코드가 여는 포트도 동일해야함
