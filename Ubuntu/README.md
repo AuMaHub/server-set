@@ -40,6 +40,12 @@ conda init bash
 > ```
 
 
+## sudo 권한 실행 시 비밀번호 무시
+
+```
+echo '{사용자명} ALL=NOPASSWD: ALL' | sudo tee -a /etc/sudoers
+```
+
 
 ## Hierarchical-Localization 설치
 
