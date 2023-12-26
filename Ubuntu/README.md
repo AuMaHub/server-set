@@ -124,6 +124,11 @@ pip install .
 git clone --recursive https://github.com/luigifreda/pyslam.git
 cd pyslam
 git checkout ubuntu20
+```
+
+### venv로 설치
+> insall_all.sh 에서 문제가 생길확률이 높음
+```
 . pyenv-create.sh 
 . install_basic.sh
 
@@ -137,5 +142,17 @@ python3 -O main_vo.py
 . install_all.sh
 
 # 메인 실행
+python3 -O main_slam.py
+```
+
+### conda로 설치
+> conda는 베이직설치가 없는 듯 함
+```
+. install_all_conda.sh
+
+# cv2에서 오류가 발생 시 아래 코드를 실행
+conda install -c conda-forge opencv
+conda install -c conda-forge pango
+
 python3 -O main_slam.py
 ```
