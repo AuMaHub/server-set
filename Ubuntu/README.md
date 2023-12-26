@@ -38,6 +38,7 @@ conda init bash
 > # 터미널이 ~/.zshrc 인지 ~/.bashrc 인지 구분해서 사용
 > echo -e "\nexport PATH=$HOME/anaconda3/bin:$PATH" >> ~/.bashrc
 > ```
+> 참고 사이트: https://ieworld.tistory.com/12
 
 
 ## sudo 권한 실행 시 비밀번호 무시
